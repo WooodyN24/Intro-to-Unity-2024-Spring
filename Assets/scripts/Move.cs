@@ -6,7 +6,9 @@ public class Move : MonoBehaviour
 {
     public float speed = 1f;
     public Vector3 jumpForce = new Vector3(0.0f, 10.0f, 0.0f);
+    public float rotationSpeed = 1f; 
     private Rigidbody rb;
+    private float yRotate = 0f;
 
     // Start is called before the first frame update
     void Start()
@@ -16,10 +18,26 @@ public class Move : MonoBehaviour
 
     void Jump()
     {
-        if (Input.GetKeyDown(KeyCode.Space))
+        if (Input.GetKeyDown(KeyCode.Space) && isGrounded())
         {
             rb.AddForce(jumpForce, ForceMode.Impulse);
         }
+    }
+
+
+    void RotateView()
+    {
+        yRotate += Input.GetAxis("Mouse X") * rotationSpeed;
+
+        transform.eulerAngles = new Vector3(0, yRotate, 0);
+    }
+
+    bool isGrounded()
+    {
+        int layerMask = LayerMask.GetMask("Ground");
+        Vector3 offset = new Vector3(0.0f, -0.5f, 0.0f);
+        return Physics.Raycast(transform.position + offset, Vector3.down, 0.6f, layerMask);
+
     }
 
     // Update is called once per frame
@@ -27,7 +45,7 @@ public class Move : MonoBehaviour
 
     {
 
-        Vector2 moveDir = Vector2.zero;
+        Vector3 moveDir = Vector3.zero;
         if(Input.GetKey(KeyCode.A))
         {
             moveDir.x = -1.0f;
@@ -44,15 +62,23 @@ public class Move : MonoBehaviour
         {
             moveDir.x = 1.0f;
         }
+        Vector3 movement = transform.forward * moveDir.y +
+            transform.right * moveDir.x;
+        moveDir = movement * speed * Time.deltaTime;
 
-        moveDir = moveDir * speed * Time.deltaTime;
 
-
-        transform.Translate(moveDir.x, 0.0f, moveDir.y);
+        transform.Translate(moveDir, Space.World);
 
         Jump();
+        RotateView();
 
+        Vector3 offset = new Vector3(0.0f, -0.5f, 0.0f);
+        Debug.DrawRay(transform.position + offset, Vector3.down, Color.green);
     }
-}
 
-** @ 1:48:00 04-27-24
+    private void OnTriggerEnter(Collider other)
+    {
+        Debug.Log("Hi I hit the trigger"); 
+    }
+
+}
