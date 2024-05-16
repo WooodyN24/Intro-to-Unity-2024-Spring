@@ -10,12 +10,15 @@ public class Move : MonoBehaviour
     private Rigidbody rb;
     private float yRotate = 0f;
 
+
+    private Vector3 startPostion = Vector3.zero;
     // Start is called before the first frame update
     void Start()
     {
         rb = GetComponent<Rigidbody>();
+        startPostion = transform.position;
     }
-
+    
     void Jump()
     {
         if (Input.GetKeyDown(KeyCode.Space) && isGrounded())
@@ -78,7 +81,12 @@ public class Move : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        Debug.Log("Hi I hit the trigger"); 
+        Debug.Log(other.gameObject);
+        Debug.Log("Hi I hit the trigger");
+
+        transform.position = startPostion;
+        rb.velocity = Vector3.zero;
+
     }
 
 }
